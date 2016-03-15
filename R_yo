@@ -1,0 +1,5 @@
+#### check if p-value is ok (flat plot)
+pvalue <- scan("~/Desktop/RNA/Selene/wt_tp3_tp1.txt", sep="")
+hist(pvalue)
+ genes_expression <- read.delim("~/Desktop/RNA/Selene/genes_expression.txt", row.names=1)
+>   View(genes_expression)
