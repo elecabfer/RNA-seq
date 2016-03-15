@@ -1,0 +1,15 @@
+ge = read.delim("genes_expression.txt")
+Irpkm = grep("rpkm",names(ge))
+medians = apply(ge[,Irpkm],1,median)
+I5 = which(medians > 5)
+ge5 = ge[I5,]
+write.table(ge5,file="gene_expression_rpkm5.txt",sep="\t",quote=F,row.names=F)
+
+puis j’ai modifié les noms des colonnes pour avoir cette structure:
+ID      counts.Ctrl.11  counts.Ctrl.12  counts.Ctrl.21  counts.Ctrl.22  counts.Ctrl.31  counts.Ctrl.32  counts.CM6h.11  counts.CM6h.12  […]
+
+#c’est à dire counts.CONDITION.replicate_number et ensuite j’ai fait 
+
+limma.R gene_expression_rpkm5.txt -s "\t" -o output_name
+
+#(limma.R est un script sur vital-it qui fait l’analyse différentielle)
