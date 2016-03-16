@@ -1,15 +1,17 @@
-ge = read.delim("genes_expression.txt")
-Irpkm = grep("rpkm",names(ge))
-medians = apply(ge[,Irpkm],1,median)
-I5 = which(medians > 5)
-ge5 = ge[I5,]
-write.table(ge5,file="gene_expression_rpkm5.txt",sep="\t",quote=F,row.names=F)
+ge = read.delim("genes_expression.txt") #leer archivo
+Irpkm = grep("rpkm",names(ge)) #coger rpkm
+medians = apply(ge[,Irpkm],1,median) #medianas por gen
+I5 = which(medians > 5) #si la mediana es mayor que 5
+ge5 = ge[I5,] 
+write.table(ge5,file="gene_expression_rpkm5.txt",sep="\t",quote=F,row.names=F) #escribir output
 
-puis j’ai modifié les noms des colonnes pour avoir cette structure:
-ID      counts.Ctrl.11  counts.Ctrl.12  counts.Ctrl.21  counts.Ctrl.22  counts.Ctrl.31  counts.Ctrl.32  counts.CM6h.11  counts.CM6h.12  […]
+#puis j’ai modifié les noms des colonnes pour avoir cette structure:
+#ID      counts.Ctrl.11  counts.Ctrl.12  counts.Ctrl.21  counts.Ctrl.22  counts.Ctrl.31  counts.Ctrl.32  counts.CM6h.11  counts.CM6h.12  […]
 
 #c’est à dire counts.CONDITION.replicate_number et ensuite j’ai fait 
-
-limma.R gene_expression_rpkm5.txt -s "\t" -o output_name
+source /mnt/common/epfl/etc/bbcf_bashrc  #para entrar en el respositorio bbcf
+module add R/3.2.2; #cargar R
+bsub limma.R gene_expression_rpkm5.txt -s "\t" -o limma.txt  ###analisis diferencial desde el archivo rpkm5
+#limma.R gene_expression_rpkm5.txt -s "\t" -o output_name
 
 #(limma.R est un script sur vital-it qui fait l’analyse différentielle)
