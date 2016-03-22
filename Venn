@@ -1,0 +1,27 @@
+setwd("~/Desktop/RNA/Selene/results/limma")
+file1<- read.delim("limma_sting_tp1-wt_tp1.txt")
+file2 <- read.delim("limma_cgas_tp1-wt_tp1.txt")
+
+input1=list(
+  file1$GeneName[which(file1$logFC > 1 )]  , #file1$adj.P.Val  < 0.05 | 
+  file1$GeneName[which(file1$logFC < -1 )]  #file1$adj.P.Val  < 0.05 | 
+)
+names(input1) <- c("up1", "under1")
+
+input2=list(
+  file2$GeneName[which(file2$logFC >1 )] , #file2$adj.P.Val  < 0.05 |
+  file2$GeneName[which(file2$logFC < -1 )] #file2$adj.P.Val  < 0.05 |
+)
+names(input2) <- c("up2", "under2")
+###################################### UP regulated
+inters_up = length(intersect(c(input1$up1), c(input2$up2))) # intersection up
+ab_up= length(setdiff(c(input1$up1), c(input2$up2)))  #A up
+ba_up=length(setdiff(c(input2$up2), c(input1$up1))) #B up
+#circulo=list(ab_up, ba_up, inters_up)
+venn(list(ab_up, ba_up, inters_up))
+grid.newpage()
+draw.pairwise.venn(area1 =ab_up, area2=ba_up, cross.area=inters_up )
+###################################### DOWN regulated
+inters_under = length(intersect(c(input1$under1), c(input2$under2))) # intersection up
+ab_under= length(setdiff(c(input1$under1), c(input2$under2)))  #A up
+ba_under=length(setdiff(c(input2$under2), c(input1$under1))) #B up
