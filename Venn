@@ -1,27 +1,69 @@
-setwd("~/Desktop/RNA/Selene/results/limma")
-file1<- read.delim("limma_sting_tp1-wt_tp1.txt")
-file2 <- read.delim("limma_cgas_tp1-wt_tp1.txt")
+setwd("~/Desktop/RNA/Selene/results/limma/")
+path<-("~/Desktop/RNA/Selene/results/limma/")
+########## EXCEL GENE_EXPRESSION
+excel<-read.delim("gene_expression_rpkm5.txt", row.names=1)    #excel gene_expression
+gen<-excel[,101]
+#genline<-list(row.names(excel[gen,]), gen)#[98:105]
+genline<-cbind(row.names(excel[gen,]), gen)#[98:105]
+########## con todos los files
+file <- dir(path, pattern ="limma")
+archivos=""
+for(i in 1:10){  
+  ####################
+  inters_up=""
+  inters_under=""
+  ab_up=""
+  ab_under=""
+  ba_up=""
+  ba_under=""
+  file$i <- read.delim(file.names[i],header=TRUE, stringsAsFactors=FALSE)
+  nombre<-""  #tipo de variable (string)
+  #nombre$j<-  gsub(file.names[i], "txt")#substr(file.names[i], 5, length(file.names[i])-3) #substraer el nombre de la experiencia
+  input<-list() #tipo de variable (lista)
+  input$i=list(
+  file$i$GeneName[which(file$i$logFC > 1 )]  , #file$i$adj.P.Val  < 0.05 |
+  file$i$GeneName[which(file$i$logFC < -1 )]  # file$i$adj.P.Val  < 0.05 |
+  )
+  names(input$i) <- c(paste("up",i,sep=""), paste("under",i,sep=""))
+  for(j in 1:10){ #length(file.names)){
+    #nombre$j<-substr(file.names[j], 5, length(file.names[j])-3)
+    #nombre$j<- gsub(file.names[j], "txt")
+    if (file.names[i] != file.names[j]){
+    file$j <- read.delim(file.names[j],header=TRUE, stringsAsFactors=FALSE)
+    input$j=list(
+      file$j$GeneName[which( file$j$logFC > 1 )]  , #file$j$adj.P.Val  < 0.05 |
+      file$j$GeneName[which(file$j$logFC < -1 )]  # file$j$adj.P.Val  < 0.05 | 
+    )
+    names(input$j) <- c("up", "under")
+    ####################
+    inters_up=""
+    inters_under=""
+    ab_up=""
+    ab_under=""
+    ba_up=""
+    ba_under=""
+        ###################################### UP regulated 2 
+    f1up<-input$i$up
+    f1under<-input$i$under
+    f2up<-input$j$up
+    f2under<-input$j$under
+    inters_up = intersect(c(f1up), c(f2up))
+    inters_upb=paste(inters_up, genline[1][match(noquote(inters_up), genline[2])])
+    ab_up= (setdiff(c(f1up), c(f2up)))  #A up
+    ba_up=(setdiff(c(f2up), c(f1up))) #B up
+          ###################################### DOWN regulated 2 
+    inters_under = (intersect(c(f1under), c(f2under))) # intersection up
+    ab_under=(setdiff(c(f1under), c(f2under)))  #A up
+    ba_under=(setdiff(c(f2under), c(f1under))) #B up
+    m<-paste(inters_upb, ab_up, ba_up, inters_under, ab_under, ba_under, sep="\t")
+          #colnames(m)<-c("inters_upb", "ab_up, ba_up", "inters_under", "ab_under", "ba_under", sep="\t")
+    write.csv(m, file=paste("A", file.names[i], "B", file.names[j], sep="_"), quote=F ,  row.names=F ) #, sep="\t" )
+    archivos<-rbind(archivos, cbind(paste("A:", file.names[i], "B:", file.names[j], sep=" "), length(inters_up), length(ab_up), length(ba_up), length(inters_under), length(ab_under), length(ba_under), sep="\t"), sep="\t")
+    }    
+  }
+}
 
-input1=list(
-  file1$GeneName[which(file1$logFC > 1 )]  , #file1$adj.P.Val  < 0.05 | 
-  file1$GeneName[which(file1$logFC < -1 )]  #file1$adj.P.Val  < 0.05 | 
-)
-names(input1) <- c("up1", "under1")
+colnames(archivos)<-c("File name","Intersection overexpressed", "A-B overexpressed", "B-A overexpressed", "Intersection underexpressed", "A-B underexpressed", "B-A underexpressed", sep="\t")
+write.table(archivos, file="Summary.txt", quote=F ,  row.names=F, col.names = T, sep="\t")
 
-input2=list(
-  file2$GeneName[which(file2$logFC >1 )] , #file2$adj.P.Val  < 0.05 |
-  file2$GeneName[which(file2$logFC < -1 )] #file2$adj.P.Val  < 0.05 |
-)
-names(input2) <- c("up2", "under2")
-###################################### UP regulated
-inters_up = length(intersect(c(input1$up1), c(input2$up2))) # intersection up
-ab_up= length(setdiff(c(input1$up1), c(input2$up2)))  #A up
-ba_up=length(setdiff(c(input2$up2), c(input1$up1))) #B up
-#circulo=list(ab_up, ba_up, inters_up)
-venn(list(ab_up, ba_up, inters_up))
-grid.newpage()
-draw.pairwise.venn(area1 =ab_up, area2=ba_up, cross.area=inters_up )
-###################################### DOWN regulated
-inters_under = length(intersect(c(input1$under1), c(input2$under2))) # intersection up
-ab_under= length(setdiff(c(input1$under1), c(input2$under2)))  #A up
-ba_under=length(setdiff(c(input2$under2), c(input1$under1))) #B up
+
