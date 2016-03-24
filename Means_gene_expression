@@ -1,0 +1,19 @@
+setwd= "~/Desktop/RNA/Selene/"
+ge = read.delim("/Users/admin/Desktop/RNA/Selene/gene_expression_rpkm5.txt", row.names=1)
+Irpkm = grep("rpkm",names(ge))
+len<-24
+print(len)
+print(dim(ge))
+s<-1
+m<-0
+for (i in 1:(len)){
+  means <- apply(ge[,c(s:(s+3))],1,mean)
+  m <- cbind(m,means)
+  s <- s+4
+}
+dim(m)
+dim(ge)
+colnames(m)=colnames(ge[seq(1, 100, 4)])
+rownames(m)=row.names(ge)
+write.table(m, "/Users/admin/Desktop/RNA/Selene/prueba_means.txt", sep="\t",quote=F) #, col.names=colnames(ge[seq(2, 96, 4)]))#,row.names=T, col.names=T)
+
