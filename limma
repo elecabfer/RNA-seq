@@ -1,5 +1,4 @@
 source /mnt/common/epfl/etc/bbcf_bashrc
-
 module add R/3.2.2;
-limma.R gene_expression_rpkm5.txt -s "\t" -o output_name
+#limma.R gene_expression_rpkm5.txt -s "\t" -o output_name
 bsub limma.R means_gene_expression_rpkm5.txt -s "\t" -o results/limma_means/limma
