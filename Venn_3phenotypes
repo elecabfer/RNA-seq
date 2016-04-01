@@ -1,0 +1,59 @@
+setwd("~/Desktop/RNA/Selene/results/limma_means/")
+path<-("~/Desktop/RNA/Selene/results/limma_means/")
+########## EXCEL GENE_EXPRESSION
+excel<-read.delim("means_gene_expression_rpkm5.txt", row.names=1)    #excel gene_expression
+gen=(excel[,28])
+#gen#genline<-list(row.names(excel[gen,]), gen)#[98:105]
+ncbi<-row.names(excel)
+genline<-cbind(ncbi, as.character(gen))#[98:105]
+rownames(genline)<-genline[,1]
+########## con todos los files
+file <- dir(path, pattern ="limma")
+
+archivos=""
+for(i in length(file.names)){  
+  file$i <- read.delim(file.names[i],header=TRUE, stringsAsFactors=FALSE)
+  nombre<-""  #tipo de variable (string)
+  #nombre$j<-  gsub(file.names[i], "txt")#substr(file.names[i], 5, length(file.names[i])-3) #substraer el nombre de la experiencia
+  input<-list() #tipo de variable (lista)
+  input$i=list(
+  file$i$GeneName[which(file$i$logFC > 1 )]  , #file$i$adj.P.Val  < 0.05 |
+  file$i$GeneName[which(file$i$logFC < -1 )]  # file$i$adj.P.Val  < 0.05 |
+  )
+  names(input$i) <- c(paste("up",i,sep=""), paste("under",i,sep=""))
+  for(j in length(file.names)){ #length(file.names)){
+    #nombre$j<-substr(file.names[j], 5, length(file.names[j])-3)
+    #nombre$j<- gsub(file.names[j], "txt")
+    if (file.names[i] != file.names[j]){
+    file$j <- read.delim(file.names[j],header=TRUE, stringsAsFactors=FALSE)
+    input$j=list(
+      file$j$GeneName[which( file$j$logFC > 1 )]  , #file$j$adj.P.Val  < 0.05 |
+      file$j$GeneName[which(file$j$logFC < -1 )]  # file$j$adj.P.Val  < 0.05 | 
+    )
+    names(input$j) <- c("up", "under")
+
+    ###################################### UP regulated 2 
+    f1up<-input$i$up
+    f1under<-input$i$under
+    f2up<-input$j$up
+    f2under<-input$j$under
+    inters_up<-intersect(c(f1up), c(f2up))
+    #inters_up <- genline[genline[,2]%in% inters_up,]
+    ab_up= (setdiff(c(f1up), c(f2up)))  #A up
+    ba_up=(setdiff(c(f2up), c(f1up))) #B up
+          ###################################### DOWN regulated 2 
+    inters_under<-intersect(c(f1under), c(f2under)) # intersection up
+    #inters_under<-genline[genline[,2]%in% inters_under,]
+    ab_under=(setdiff(c(f1under), c(f2under)))  #A up
+    ba_under=(setdiff(c(f2under), c(f1under))) #B up
+    #m<-paste(inters_up, ab_up, ba_up, inters_under, ab_under, ba_under, sep="\t")
+    m<-cbind(f1up, f2up, inters_up, ab_up, ba_up,f1under, f2under ,inters_under, ab_under, ba_under)
+    #colnames(m)<-c("A overexpressed","B overexpressed","Intersection overexpressed","A-B overexpressed","B-A overexpressed","A underexpressed","B underexpressed","Intersection underexpressed","A-B underexpressed","B-A underexpressed",sep="\t")
+    write.table(m, file=paste("A", file.names[i], "B", file.names[j], sep="_"), quote=F ,  row.names=F , col.names=F, sep="\t")
+    archivos<-rbind(archivos, cbind(paste("A:", file.names[i], "B:", file.names[j], sep=" "),length(f1up), length(f2up) , length(inters_up), length(ab_up), length(ba_up),length(f1under), length(f2under)  ,length(inters_under), length(ab_under), length(ba_under), sep="\t"), sep="\t")
+    }    
+  }
+}
+
+colnames(archivos)<-c("File name","A overexpressed","B overexpressed","Intersection overexpressed", "A-B overexpressed", "B-A overexpressed" ,"A underexpressed","B underexpressed","Intersection underexpressed", "A-B underexpressed", "B-A underexpressed", sep="\t")
+write.table(archivos, file="Summary.txt", quote=F ,  row.names=F, col.names = T, sep="\t")
