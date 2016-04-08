@@ -1,0 +1,15 @@
+########## bioconductor from VItal_IT no funciona
+module add R/3.2.2;
+R #hay primero que meterse en R
+source("https://bioconductor.org/biocLite.R")
+biocLite("pathview")
+biocLite("biomaRt")
+source("/scratch/cluster/monthly/ecabello/RNA-seq/work/KEGGpathways.R")
+
+########## bioconductor local
+source("https://bioconductor.org/biocLite.R")
+biocLite("biomaRt")
+source("https://bioconductor.org/biocLite.R")
+biocLite("gage")
+source("https://bioconductor.org/biocLite.R")
+biocLite("pathview")
