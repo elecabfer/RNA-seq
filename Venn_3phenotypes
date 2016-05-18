@@ -3,12 +3,11 @@ path<-("~/Desktop/RNA/Selene/results/limma_means/")
 ########## EXCEL GENE_EXPRESSION
 excel<-read.delim("means_gene_expression_rpkm5.txt", row.names=1)    #excel gene_expression
 gen<-excel[,29]
-#genline<-list(row.names(excel[gen,]), gen)#[98:105]
 genline<-cbind(row.names(excel[gen,]), gen)#[98:105]
 ########## con todos los files
 file.names <- dir(path, pattern ="limma_")
 archivos=""
-for(i in length(file.names)){  
+for(i in (1:length(file.names))){  
   ####################
   inters_up=""
   inters_under=""
@@ -25,9 +24,8 @@ for(i in length(file.names)){
     filei$GeneName[which(filei$logFC < -1 )]  # file$i$adj.P.Val  < 0.05 |
   )
   names(inputi) <- c(paste("up",i,sep=""), paste("under",i,sep=""))
-  for(j in (2:length(file.names))){
+  for(j in (1:length(file.names))){
     if (file.names[i] != file.names[j]){
-      print("yes")
       filej <- read.delim(file.names[j],header=TRUE, stringsAsFactors=FALSE)
       inputj=list(
         filej$GeneName[which(filej$logFC > 1 )]  , #file$j$adj.P.Val  < 0.05 |    #### upregulated
@@ -44,18 +42,18 @@ for(i in length(file.names)){
       ###################################### UP regulated 2 
       f1up<-inputi$up
       f1under<-inputi$under
-      f2up<-inputj$up   #no funciona
-      f2under<-inputj$under #no funciona
+      f2up<-inputj$up  
+      f2under<-inputj$under 
       inters_up = intersect(c(f1up), c(f2up))
       inters_upb=paste(inters_up, genline[1][match(noquote(inters_up), genline[2])])
       ab_up= (setdiff(c(f1up), c(f2up)))  #A up
       ba_up=(setdiff(c(f2up), c(f1up))) #B up
-      ###################################### DOWN regulated 2 
+      ###################################### UNDER regulated 2 
       inters_under = (intersect(c(f1under), c(f2under))) # intersection up
       ab_under=(setdiff(c(f1under), c(f2under)))  #A up
       ba_under=(setdiff(c(f2under), c(f1under))) #B up
       m<-paste(inters_upb, ab_up, ba_up, inters_under, ab_under, ba_under, sep="\t")
-      #colnames(m)<-c("inters_upb", "ab_up, ba_up", "inters_under", "ab_under", "ba_under", sep="\t")
+      #colnames(m)<-c("inters_up", "ab_up, ba_up", "inters_under", "ab_under", "ba_under", sep="\t")
       write.csv(m, file=paste("A", file.names[i], "B", file.names[j], sep="_"), quote=F ,  row.names=F ) #, sep="\t" )
       archivos<-rbind(archivos, cbind(paste("A:", file.names[i], "B:", file.names[j], sep=" "), length(inters_up), length(ab_up), length(ba_up), length(inters_under), length(ab_under), length(ba_under), sep="\t"), sep="\t")
     }    
