@@ -8,39 +8,37 @@ if (!require("RColorBrewer")) {
   library(RColorBrewer)
 }
 ################      HEATMAP
-install.packages("gplots", dependencies = TRUE)
-install.packages("RColorBrewer", dependencies = TRUE)
+#install.packages("gplots", dependencies = TRUE)
+#install.packages("RColorBrewer", dependencies = TRUE)
 library(gplots)
 library(RColorBrewer)
-
 ###########  
-setwd("~/Desktop/RNA/Selene/heatmap/")
-data <- read.csv("cgas-wt.csv")
-rnames <- data[,1]
-mat_data <- data.matrix(data[,2:ncol(data)])
-rownames(mat_data) <- rnames
-
+setwd("~/Desktop/RNA/Efthymia/heatmap/")      #### CHANGE
+data <- read.delim("~/Desktop/RNA/Efthymia/heatmap/LEC-DC.xls", row.names=1)
+#rnames <- data[,1]
+mat_data <- data.matrix(data[,1:ncol(data)])
 my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)  
-col_breaks = c(seq(-6,-1,length=100), # for red
+col_breaks = c(seq(-10,-1,length=100), # for red
                seq(-1,1,length=100), # for yellow
-               seq(1,6,length=100)) # for green
-# creates a 5 x 5 inch image
-png("~/Desktop/RNA/Selene/heatmap/heatmap_cgas_wt.png")# ,    # create PNG for the heat map        
+               seq(1,10,length=100)) # for green
+
+png("~/Desktop/RNA/Efthymia/heatmap/heatmap_LEC-DC.png")# ,     #### CHANGE ####
     #width = 4*300,        # 5 x 300 pixels
     #height = 6098*300,
     #res = 300)            # 300 pixels per inch
     #pointsize = 8)        # smaller font size
 
 heatmap.2(mat_data,
-          #cellnote = mat_data,  # same data set for cell labels
-          main = "Cgas-WT", # heat map title
-          #notecol="black",      # change font color of cell labels to black
+          #cellnote = mat_data, # same data set for cell labels
+          main = "LEC-DC",    # heat map title                              #### CHANGE ###
+          #notecol="black",     # change font color of cell labels to black
           density.info="none",  # turns off density plot inside color legend
           trace="none",         # turns off trace lines inside the heat map
           margins =c(12,9),     # widens margins around plot
+          #col.names= 
           col=my_palette,       # use on color palette defined earlier
           #breaks=col_breaks,    # enable color transition at specified limits
-          dendrogram="row",     # only draw a row dendrogram
+          dendrogram="both",     # only draw a row dendrogram
           Colv="NA")            # turn off column clustering
   
 dev.off()               # close the PNG device
