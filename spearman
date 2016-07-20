@@ -1,0 +1,16 @@
+data <- read.delim("~/Desktop/RNA/Manuel/TCGA human melanoma Level3 RNAseq data_mod.txt", row.names=1)
+mat_data <- data.matrix(data[,1:ncol(data)])
+#caja <- boxplot.matrix(mat_data)
+#means<- colMeans(mat_data)
+
+VEGFC <- mat_data[19360,]  #VEGFC: 19361, VEGFA: 19358   (numero de excel -1)
+for (i in 1:nrow(mat_data)){
+  S=cor.test(VEGFC, mat_data[i,], method="spearman")
+  print(S)
+  if (S<0.05) {
+    print('OK')
+    FC<-rbind(c, S)
+  }else {
+    print('NA')
+    FC<-rbind(c, 'NA')
+  }
