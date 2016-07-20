@@ -14,3 +14,4 @@ for (i in 1:nrow(mat_data)){
     print('NA')
     FC<-rbind(c, 'NA')
   }
+}
