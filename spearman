@@ -1,17 +1,26 @@
 data <- read.delim("~/Desktop/RNA/Manuel/TCGA human melanoma Level3 RNAseq data_mod.txt", row.names=1)
 mat_data <- data.matrix(data[,1:ncol(data)])
 #caja <- boxplot.matrix(mat_data)
-#means<- colMeans(mat_data)
-
-VEGFC <- mat_data[19360,]  #VEGFC: 19361, VEGFA: 19358   (numero de excel -1)
-for (i in 1:nrow(mat_data)){
-  S=cor.test(VEGFC, mat_data[i,], method="spearman")
-  print(S)
-  if (S<0.05) {
-    print('OK')
-    FC<-rbind(c, S)
-  }else {
-    print('NA')
-    FC<-rbind(c, 'NA')
+#VEGFC <- mat_data[19360,]  #VEGFC: 19361, VEGFA: 19358, VEGFD/FIGF:  6431  (numero de excel -1)
+#VEGFA<-mat_data[19357,]
+#VEGFD<-mat_data[19357,]
+test<-0
+matriz<-456
+genes<-c(19360,19357,1630)
+for (g in 1:length(genes)){
+  refgene<-mat_data[genes[g],]
+  for (i in 1:nrow(mat_data)){
+    test<-cor.test(mat_data[i,], refgene, method="spearman")
+    if (is.na(test$adj.p.value)=TRUE){   ### si todas las celdas == 0
+      fc[i]<-('NA')}
+    if (test$adj.p.value>0.05){   ##si el p.value es > 0.05
+      fc[i]<-('NA')}
+    if (test$p.value<=0.05){# s el p.value < 0.05
+      r<- lm( mat_data[i,]~refgene)
+      fc[i]<-summary.lm(r)$adj.r.squared}
   }
+  matriz[g]<-(fc)
+  print(g)
 }
+length(matriz)
+
