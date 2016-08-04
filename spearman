@@ -22,4 +22,3 @@ for (i in 1:length(genes)){
       matriz[j,i]<-(summary.lm(r)$adj.r.squared)} 
     } 
   }
-j
