@@ -6,6 +6,7 @@ mat_data <- data.matrix(data[,1:ncol(data)])
 #VEGFD<-mat_data[19357,]
 test<-0
 genes<-c(19360,19357,1630)
+namegenes<-c("VEGFC", "VEGFA", "VEGFD")
 matriz<-matrix(NA,ncol= length(genes), nrow=nrow(mat_data))
 for (i in 1:length(genes)){
   refgene<-mat_data[genes[i],]
@@ -14,11 +15,52 @@ for (i in 1:length(genes)){
   for (j in 1:nrow(mat_data)){
     test<-cor.test(mat_data[j,], refgene, method="spearman")
     if (is.na(test$p.value)==TRUE){   ### si todas las celdas == 0
-      matriz[j,i]<-('NA')}
+      matriz[j,i]<-as.numeric('-100')}
+     
     else if (test$p.value>0.05){   ## si el p.value es > 0.05
-      matriz[j,i]<-('NA')}
+      matriz[j,i]<-as.numeric('-100')}
+  
     else if (test$p.value<=0.05){       ## s el p.value < 0.05
       r<-lm(mat_data[j,]~refgene)
-      matriz[j,i]<-(summary.lm(r)$adj.r.squared)} 
+      matriz[j,i]<-as.numeric(summary.lm(r)$adj.r.squared)} 
+
     } 
   }
+as.matrix(matriz)
+colnames(matriz)<-namegenes
+rownames(matriz)<-rownames(data)
+################################################## HEATMAP
+#### INSTALL
+source("http://www.bioconductor.org/biocLite.R")
+if (!require("gplots")) {
+  install.packages("gplots", dependencies = TRUE)
+  library(gplots)
+}
+if (!require("RColorBrewer")) {
+  install.packages("RColorBrewer", dependencies = TRUE)
+  library(RColorBrewer)
+}
+###      LIBRARIES
+library(gplots)
+library(RColorBrewer)
+
+my_palette <- colorRampPalette(c("blue","red" ,"green"))(n = 299)  
+col_breaks = c(seq((-101,-99),length=100), # for NA
+               seq((-99,0,length=100), # for red
+               #seq(0,0.000001),length=100), # for yellow
+               seq((0,100),length=100)) # for green
+
+r_data <- data.matrix(matriz[,1:ncol(matriz)])
+png("~/Desktop/RNA/Manuel/heatmap/heatmap_rsquare.png")
+heatmap.2(r_data[1:20,],
+          cellnote = r_data[1:20,],
+          main = "Rsquare",    # heat map title                              #### CHANGE ###
+          density.info="none",  # turns off density plot inside color legend
+          trace="none",         # turns off trace lines inside the heat map
+          margins =c(12,9),     # widens margins around plot
+          na.color="black",
+          col=my_palette,       # use on color palette defined earlier
+          #breaks=col_breaks,    # enable color transition at specified limits
+          dendrogram="both")#,     # only draw a row dendrogram
+          #Colv="NA")            # turn off column clustering
+dev.off()               # close the PNG device
