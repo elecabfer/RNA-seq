@@ -1,34 +1,83 @@
 data<-read.delim("~/Desktop/RNA/Manuel/TCGA human melanoma Level3 RNAseq data_mod.txt", row.names=1)
-mat_data <- data.matrix(data[,1:ncol(data)])
-#caja <- boxplot.matrix(mat_data)
-#VEGFC <- mat_data[19360,]  #VEGFC: 19361, VEGFA: 19358, VEGFD/FIGF:  6431  (numero de excel -1)
-#VEGFA<-mat_data[19357,]
-#VEGFD<-mat_data[19357,]
+clin_data <-read.delim("~/Desktop/RNA/Manuel/SKCM.clin.merged.txt", row.names=1)
+mat_data <- data.matrix(data[,1:ncol(data)]) #valores
+mat_clin <- data.matrix(clin_data[,1:ncol(clin_data)]) #clinico
+
+################## get tumor_type info
+metastatic<-which(clin_data[28,]=="metastatic") ## lista de index con las metastatics
+primary<-which(clin_data[28,]=="primary") ## lista de index con los
 test<-0
-genes<-c(19360,19357,1630)
-namegenes<-c("VEGFC", "VEGFA", "VEGFD")
-matriz<-matrix(NA,ncol= length(genes), nrow=nrow(mat_data))
-for (i in 1:length(genes)){
-  refgene<-mat_data[genes[i],]
+genes<-c(19360,19358,6430)
+namegenes<-c("VEGFC", "VEGFA", "VEGFD") #6431
+      
+################ METASTATIC
+matriz_m <- matrix(NA,ncol= length(genes), nrow=nrow(mat_data)) #matrix metastatic
+matriz_rho <- matrix(NA,ncol= length(genes), nrow=nrow(mat_data))
+for (i in 1:length(metastatic)){   ###Genes "i" is the 3 gene names list
+  refgene<-mat_data[genes[i],metastatic]
   r<-0
   test<-0
-  for (j in 1:nrow(mat_data)){
-    test<-cor.test(mat_data[j,], refgene, method="spearman")
-    if (is.na(test$p.value)==TRUE){   ### si todas las celdas == 0
-      matriz[j,i]<-as.numeric('-100')}
-     
-    else if (test$p.value>0.05){   ## si el p.value es > 0.05
-      matriz[j,i]<-as.numeric('-100')}
-  
-    else if (test$p.value<=0.05){       ## s el p.value < 0.05
-      r<-lm(mat_data[j,]~refgene)
-      matriz[j,i]<-as.numeric(summary.lm(r)$adj.r.squared)} 
-
+  for (j in 1:nrow(mat_data)){ ### "j" is the gene names, no se cambia (DEBERIA SER METASTATIC o 1:nrow(mat_data) ??)
+      test<-cor.test(mat_data[j,metastatic], refgene, method="spearman")  #hacer un test de spearman por cada row
+      #if (is.na(test$p.value)==TRUE){   ### si todas las celdas == 0
+       # matriz_rho[j,i]<-as.numeric(0)
+        #matriz_m[j,i]<-as.numeric(0)}
+        
+    #  else if (test$p.value>0.05){   ## si el p.value es > 0.05
+     #  # matriz_rho[j,i]<-as.numeric(0)
+        #matriz_m[j,i]<-as.numeric(0)}
+        
+      #else if (test$p.value<=0.05){       ## s el p.value < 0.05
+      r<-lm(mat_data[j,metastatic]~refgene)
+      matriz_rho[j,i]<-as.numeric(test$estimate)
+      matriz_m[j,i]<-as.numeric(summary.lm(r)$adj.r.squared)} 
     } 
-  }
-as.matrix(matriz)
-colnames(matriz)<-namegenes
-rownames(matriz)<-rownames(data)
+}
+as.matrix(matriz_m)
+colnames(matriz_m)<-namegenes
+rownames(matriz_m)<-rownames(data)
+write.table(matriz_m,file="/Users/admin/Desktop/RNA/Manuel/metastatic_r.xls",sep="\t",quote=F,row.names=T)
+
+as.matrix(matriz_rho)
+colnames(matriz_rho)<-namegenes
+rownames(matriz_rho)<-rownames(data)
+write.table(matriz_rho,file="/Users/admin/Desktop/RNA/Manuel/metastatic_rho.xls",sep="\t",quote=F,row.names=T)
+
+############################## PRIMARY
+matriz_p <- matrix(NA,ncol= length(genes), nrow=nrow(mat_data)) #matrix metastatic
+matriz_rho_p <- matrix(NA,ncol= length(genes), nrow=nrow(mat_data))
+for (i in 1:length(primary)){   ###Genes "i" is the 3 gene names list
+  refgene<-mat_data[genes[i],primary]
+  r<-0
+  test<-0
+  for (j in 1:nrow(mat_data)){ ### "j" is the gene names, no se cambia (DEBERIA SER METASTATIC o 1:nrow(mat_data) ??)
+    test<-cor.test(mat_data[j,primary], refgene, method="spearman")  #hacer un test de spearman por cada row
+  #  if (is.na(test$p.value)==TRUE){   ### si todas las celdas == 0
+      #matriz_rho_p[j,i]<-as.numeric(0)
+      #matriz_p[j,i]<-as.numeric(0)}
+    
+    #else if (test$p.value>0.05){   ## si el p.value es > 0.05
+     # matriz_rho_p[j,i]<-as.numeric(0)
+      #matriz_p[j,i]<-as.numeric(0)}
+  
+    #else if (test$p.value<=0.05){       ## s el p.value < 0.05
+      r<-lm(mat_data[j,primary]~refgene)
+      matriz_rho_p[j,i]<-as.numeric(test$estimate)
+      matriz_p[j,i]<-as.numeric(summary.lm(r)$adj.r.squared)} 
+  } 
+}
+as.matrix(matriz_p)
+colnames(matriz_p)<-namegenes
+rownames(matriz_p)<-rownames(data)
+write.table(matriz_p,file="/Users/admin/Desktop/RNA/Manuel/primary_r.xls",sep="\t",quote=F,row.names=T)
+
+as.matrix(matriz_rho_p)
+colnames(matriz_rho_p)<-namegenes
+rownames(matriz_rho_p)<-rownames(data)
+write.table(matriz_rho_p,file="/Users/admin/Desktop/RNA/Manuel/primary_rho.xls",sep="\t",quote=F,row.names=T)
+
+
+
 ################################################## HEATMAP
 #### INSTALL
 source("http://www.bioconductor.org/biocLite.R")
@@ -40,27 +89,3 @@ if (!require("RColorBrewer")) {
   install.packages("RColorBrewer", dependencies = TRUE)
   library(RColorBrewer)
 }
-###      LIBRARIES
-library(gplots)
-library(RColorBrewer)
-
-my_palette <- colorRampPalette(c("blue","red" ,"green"))(n = 299)  
-col_breaks = c(seq((-101,-99),length=100), # for NA
-               seq((-99,0,length=100), # for red
-               #seq(0,0.000001),length=100), # for yellow
-               seq((0,100),length=100)) # for green
-
-r_data <- data.matrix(matriz[,1:ncol(matriz)])
-png("~/Desktop/RNA/Manuel/heatmap/heatmap_rsquare.png")
-heatmap.2(r_data[1:20,],
-          cellnote = r_data[1:20,],
-          main = "Rsquare",    # heat map title                              #### CHANGE ###
-          density.info="none",  # turns off density plot inside color legend
-          trace="none",         # turns off trace lines inside the heat map
-          margins =c(12,9),     # widens margins around plot
-          na.color="black",
-          col=my_palette,       # use on color palette defined earlier
-          #breaks=col_breaks,    # enable color transition at specified limits
-          dendrogram="both")#,     # only draw a row dendrogram
-          #Colv="NA")            # turn off column clustering
-dev.off()               # close the PNG device
