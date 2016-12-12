@@ -4,35 +4,35 @@ if (!require("RColorBrewer")){
 }
 setwd("~/Desktop/Broggi")
 data <- read.delim("lymph_blood_miRNA_comparison.txt", row.names = 1, header = TRUE)
-
-### PCA 1: Lymph vs Plasma
 values<-as.matrix(data[4:69,])
-lymph<-as.vector(values[, 1:21])
-plasma=as.vector(values[,22:42])
+d <- colnames(values)
+values <- t(apply(values,1,as.numeric))
+head(values)
 values.types<-data[1,]
-matriz<-cbind(lymph, plasma)
-#row.names(matriz)<-data[,1[2:]]
-#colnames(matriz)<-data[1,]
-####colores
-colores<-values
-colores[lymph]<-"yellow"
-colores[plasma]<-"red"
+head(matriz)
+##############  PCA
 
-######
-matriz.pca <- prcomp(as.numeric(matriz))
-summary(matriz.pca)
-##pairs
-pairs(values.pca$x,col=colores)
-#
-plot(values.pca, type="l")
-summary(values.pca)
+matriz.pca <- prcomp(t(values))
+head(matriz.pca$x)
 
-View(values)
-############## Positive and Negative
-pos_index<- which(data[3,]=="positive")
-neg_index<- which(data[3,]=="negative")
+############## PLOT Lymph/Plasma
+colores=c(rep("blue", 21), rep("red", 21))
+formas=c(rep(16, 21), rep(16, 21))  ## 16 para circulos, 15 para cuadrados
+plot(matriz.pca$x, col=colores, pch=formas, main="PCA Lymph-Plasma")
+legend("topleft", c("Lymph", "Plasma"), col=c("blue", "red"), box.lty =0, pch=c(16,16), cex=0.9,pt.cex=0.7)
 
-positive <- as.vector(values[,pos_index])
-negative <- as.vector(values[,neg_index])
-matriz_posneg<-as.matrix(cbind(positive, negative))
-pca.posneg<-prcomp(matriz_posneg)
+############### PLOT Neg/Pos
+colores=c(rep("red", 9), rep("green", 12), rep("red", 9), rep("green", 12))
+formas=c(rep(16, 9), rep(16, 12), rep(16, 9), rep(16, 12))  ## 16 para circulos, 15 para cuadrados, 17 para triangulos
+plot(matriz.pca$x, col=colores, main= "PCA Positive-Negative" , pch=formas)
+legend("topleft", c("Negative", "Positive"), col=c("red","green"), box.lty =0, pch=c(16,16), cex=0.9,pt.cex=0.7)
+
+
+############### PLOT Todo
+colores=c(rep("blue", 9), rep("blue", 12), rep("red", 9), rep("red", 12))
+formas=c(rep(1, 9), rep(16, 12), rep(1, 9), rep(16, 12))  ## 16 para circulos, 15 para cuadrados
+plot(matriz.pca$x, col=colores, pch=formas)
+legend("topleft", c("Lymph negative", "Lymph positive", "Plasma negative", "Plasma positive" ), 
+       col=c("blue", "blue", "red", "red"),  
+       box.lty =0, pch=c(1, 16, 1, 16), cex=0.9,pt.cex=0.7)
+
