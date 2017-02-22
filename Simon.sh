@@ -6,4 +6,8 @@ CREATE USER 'username@'localhost' IDENTIFIED BY '';
 GRANT ALL PRIVILEGES ON * . * TO 'username'@'localhost';
 FLUSH PRIVILEGES;
 #create mysql database
-CREATE DATABASE mm9seq;
+CREATE DATABASE mmseq;
+
+
+
+nohup /location_from_root/TRIBE/CODE/load_table.sh "$dir$i"/"$i"accepted_hits.sam mysql_tablename expt tp &
