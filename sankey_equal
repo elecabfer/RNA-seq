@@ -1,0 +1,88 @@
+#install.packages('networkD3')
+
+library(networkD3)
+
+### EXAMPLE
+# sankeyNetwork
+URL <- "https://cdn.rawgit.com/christophergandrud/networkD3/master/JSONdata/energy.json"
+energy <- jsonlite::fromJSON(URL)
+
+sankeyNetwork(Links = Energy$links, Nodes = Energy$nodes, Source = "source",
+              Target = "target", Value = "value", NodeID = "name",
+              fontSize = 12, nodeWidth = 30)
+
+# Colour links
+energy$links$energy_type <- sub(' .*', '',
+                                energy$nodes[energy$links$source + 1, 'name'])
+sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
+              Target = 'target', Value = 'value', NodeID = 'name',
+              LinkGroup = 'energy_type', NodeGroup = NULL)
+
+length(Energy$links)
+length(Energy$nodes)
+length(Energy$links$source)
+length(Energy$links$target)
+length(Energy$links$value)
+length(Energy$nodes$name)
+length(energy$links$energy_type)
+
+##################################################### MINE
+### networkD3
+setwd("~/Desktop/Solenne/")
+comp <- read.csv("~/Desktop/Solenne/Composition_original.csv", comment.char="#", header=T, check.names = FALSE)
+spf <- (comp[4:7,1:35])
+tspf = t(spf[,2:35])
+valores <- as.vector(unlist(tspf))
+valores = valores[1:136]
+valores
+
+nombres = paste(c("Liver-CA", "Small intestine part-CA", "Small intestine part 4-CA", "Cecum-CA" , "Colon-CA", rownames(spf)[1:34]))
+links<-NA
+
+##### Replace by numbers
+
+An = c(rep("TCA-S",3), rep("CA-S", 2), "TCA","CA","CA","DCA","DCA","7-oxoDCA", "3-oxoCA","12-oxoLCA","TCA") #paste(c(colnames(spf)[2:35]))
+#ngroup = c("Small intestine part 4","Small intestine part 2", "Small intestine part 2", "Small intestine part 4", "Small intestine part 4", "Small intestine part 4", "Small intestine part 4",  "Small intestine part 4",  "Cecum", "Cecum", "Cecum" ,  "Small intestine part 4", "Cecum", "Cecum", "Cecum", "Colon", "Colon", "Cecum", "Cecum", "Colon", "Colon", "Cecum", "Small intestine part 2",  "Small intestine part 2","Liver", "Liver")
+Bn = c(rep("CDCA-S",2),rep("TCDCA",2), rep("CDCA-S",2), "UDCA", rep("LCA",2),rep("3-oxo-LCA",2), rep("isoLCA",2), "alloLCA", rep("3-oxoCDCA",2))
+
+Btarget=c(2+13,5+13,4+13,2+13,5+13,4+13,6+13,7+13,15+13,16+13,9+13,10+13,13+13,14+13,11+13,12+13)
+
+Cn= c(rep("TUDCA",2),rep("UDCA",3),rep("CDCA",2),rep("LCA",2),rep("3-oxoLCA",2),rep("isoLCA",2),"alloLCA", rep("3-oxoCDCA",2),rep("LCA",2),rep("3-oxoLCA",2), rep("isoLCA",2), "alloLCA")
+Csource= c(30,30,32,32,32,35,35,35,35,35,37,37,37,37,39,39,46,46,46,46,48,48)
+Ctarget = c(31,32,35,46,33,36,34,37,44,45,38,39,41,43,40,42,47,48,50,52,49,51)
+#rep("",2),
+Dn= c(rep("THDCA",2),"HDCA", rep("THCA",2),rep("HCA",2),"HDCA","aMCA")
+Dsource= c(53,53,56,56,58,58,58)
+Dtarget = c(54,55,57,58,59,60,61)
+
+En= c(rep("TaMCA",2),rep("aMCA",2),rep("MCDA",2),"6-oxo.alloLCA", "6-oxoLCA", "bMCA")
+Esource= c(62,63,64,64,64,66,66,66)
+Etarget= c(63,64,65,66,70,67,68,69)
+
+Fn= c(rep("TbMCA",3),"bMCA", "aMCA",rep("wMCA",2),"HDCA",rep("MDCA",2),"6-oxo-alloLCA","6-oxoLCA")
+Fsource = c(71,71,73,73,73,73,76,76,79,79,79)
+Ftarget = c(72,73,74,75,76,79,77,78,80,81,82)
+
+Gn=c(rep("TwMCA",2),rep("wMCA",2),"HDCA",rep("TMDCA",2),rep("MDCA",2),"6-oxo-alloLCA", "6-oxoLCA")
+Gsource = c(83,83,85,85,88,88,90,90,90)
+Gtarget = c(84,85,86,87,89,90,91,92,93)
+################################
+nombres = c(An,Bn, Cn, Dn, En, Fn, Gn)
+nodes = data.frame(nombres) #, ngroup)#, ngroup)
+Source= c(0,0,1,1,3,3,5,6,6,6,6,8,8,5,    14,14,14,16,16,16,18,18,18,18,21,21,21,21,23,23, Csource, Dsource, Esource ,Fsource, Gsource) 
+Target= c(1,3,2,5,4,5,13,7,8,11,10,9,12,6,    Btarget,  Ctarget, Dtarget, Etarget, Ftarget, Gtarget) #,rep(20,31))
+Value = c(rep(20, length(Source))) 
+#lgroup = c(1:length(Source))
+
+length(Value)
+length(Source)
+length(Target)
+length(nombres)
+####
+links = data.frame(Source, Target, Value)#, lgroup)
+#newlinks <- links[apply(links[c(3)],1,function(z) !any(z==0)),] ##remove rows with 0 in Value
+#newlinks
+# LinkGroup= newlinks$lgroup, NodeGroup = nodes$ngroup,
+jpeg(filename= "Sankey_20.jpeg")
+sankeyNetwork(Links = links, Nodes = nodes,  Source = "Source", Target= "Target", Value = "Value",  fontSize = 10,LinkGroup = NULL, units = "") #, nodeWidth = 30)
+dev.off()  
