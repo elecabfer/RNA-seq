@@ -1,0 +1,71 @@
+---
+title: "fish-human_circos"
+author: "Elena"
+date: "5/25/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+if (!require("gplots")) {
+  install.packages("gplots", dependencies = TRUE)
+  library(gplots)
+}
+if (!require("RColorBrewer")) {
+  install.packages("RColorBrewer", dependencies = TRUE)
+  library(RColorBrewer)
+}
+
+setwd("~/Desktop/Gianluca_RNAseq/Zebrafish/") 
+data<-read.delim("/Users/elena/Desktop/Gianluca_RNAseq/package_for_elena_notochord_rnaseq/analysis/zebrafish_results_w_human_7jul2016.xls", header=T)
+humanpos<-which(!is.na(data$human.logFC) & abs(data$logFC)>1)  #common genes zebrafish-human
+length(humanpos)
+
+###################################### HEATMAP
+#heatmapper colors: yellow: "#FFFF00", blue: "#0016DB"
+my_palette <- colorRampPalette(c( "#0016DB","white",  "#FFFF00"))(199) 
+col_breaks = c(seq(-2,-0.2, length=100),  # for red
+               seq(-0.19,0.19, length=100),
+               seq(0.2,2, length=100))           # for yellow
+
+hclust2 <- function(x, method="centroid")
+  hclust(x, method=method)
+dist2 <- function(x)
+  as.dist(1-cor(t(x), method="spearman"))
+#postscript(paste("~/Desktop/Gianluca_RNAseq/RNA_seq_human_zebrafish.pdf", sep=""),
+ #          width = 5*900,        # 5 x 300 pixels
+#           height = 5*700,
+#           paper="a4",
+#           horizontal=FALSE,
+#           onefile=FALSE,
+#           #res = 600,            # 300 pixels per inch
+ #          pointsize = 5)        # smaller font size# ,   
+
+mat_counts<-NA
+mat_counts<-data[humanpos,c(9,10,11,12,13,27,28,29,30,31,32,33,34,35)]
+dim(mat_counts)
+head(mat_counts)
+
+rownames(mat_counts)<-make.names(data[humanpos,2], unique=TRUE)
+par(mar=c(1,1,1,1))
+hv<- heatmap.2(as.matrix(mat_counts),
+               #cellnote = mat_counts[genes_f,],  # same data set for cell labels
+               #par(cex.main=0.7),
+               #main= paste("RNA-seq: ",dim(mat_counts)[1]," genes"), # heat map title
+               notecol="black",      # change font color of cell labels to black
+               density.info="none",  # turns off density plot inside color legend
+               trace="none",         # turns off trace lines inside the heat map
+               #margins =c(9,9),     # widens margins around plot
+               col=my_palette,       # use on color palette defined earlier
+               lhei = c(1,7),  ##size of color key (color legend)
+               distfun=dist2, 
+               hclustfun=hclust2,
+               #breaks=col_breaks,    # enable color transition at specified limits. Not possible when we have scale=TRUE
+               dendrogram="column",     # only draw a row dendrogram
+               scale="row",
+               Colv=TRUE,
+               Rowv=TRUE) #,
+hv
+dev.off()               # close the PNG device
+```
